@@ -1,6 +1,6 @@
 {
   "name":             "7f",
-  "version":          "1.0.0",
+  "version":          "1.0.1",
   "main":             "./lib/7f",
   "description":      "7F protocol library for node.js",
   "author":           "Markus Kohlhase <mail@markus-kolhase.de>",
@@ -13,7 +13,7 @@
     "coffee-script":  "~1.6.3",
     "buster":         "~0.6.12",
     "buster-coffee":  "~0.1.4",
-    "sinon":          "~1.5.2"
+    "sinon":          "~1.7.3"
   },
   "maintainers": [
     {
@@ -29,7 +29,7 @@
   "licenses":         [{"type": "GPLv3"}],
   "scripts":
   {
-    "build":          "coffee -c -o lib/ src/",
+    "build":          "coffee -o lib/ -c src/*.coffee",
     "test":           "buster test"
   }
 }

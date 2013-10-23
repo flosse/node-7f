@@ -2,6 +2,10 @@
 
 7F protocol library for Node.js
 
+[![Build Status](https://secure.travis-ci.org/flosse/node-7f.png)](http://travis-ci.org/flosse/node-7f)
+[![Dependency Status](https://gemnasium.com/flosse/node-7f.png)](https://gemnasium.com/flosse/node-7f)
+[![NPM version](https://badge.fury.io/js/7f.png)](http://badge.fury.io/js/7f)
+
 ## Usage
 
 ```shell

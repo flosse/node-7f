@@ -9,7 +9,7 @@ constants       = require "./Constants"
 {
   BasicMessage
   BasicHeader
-  AdvancedMessagee
+  AdvancedMessage
   AdvancedHeader
   LoginRequest
   LoginResponse
