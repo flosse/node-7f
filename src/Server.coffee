@@ -2,7 +2,6 @@
 Copyright (c) 2009 - 2013, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
-util        = require "util"
 net         = require "net"
 events      = require "events"
 

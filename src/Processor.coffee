@@ -56,8 +56,30 @@ class Processor
   @basicMessageToLoginRequest: (msg) ->
     new LoginRequest msg.header,
       specificationNr: msg.data.readUInt32BE 0
-      functionId: msg.data.readUInt32BE 4
-      locationId: msg.data.readUInt32BE 8
+      functionId:      msg.data.readUInt32BE 4
+      locationId:      msg.data.readUInt32BE 8
+
+  @loginRequestToBasicMessage: (req) ->
+
+    { specificationNr
+      functionId
+      locationId
+    } = req
+
+    specificationNr ?= Properties.DEFAULT_SPECIFICATION_NR
+    functionId      ?= Properties.DEFAULT_LOGIN_FUNCTION_ID
+
+    len = Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH
+    data = new Buffer len - 12
+    data.writeUInt32BE specificationNr, 0
+    data.writeUInt32BE functionId,      4
+    data.writeUInt32BE locationId,      8
+    h = req.header ?= {}
+    h.length       =  len
+    h.nr          ?=  Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR
+    h.protocolId  ?=  Properties.DEFAULT_PROTOCOL_ID
+
+    new BasicMessage h, data
 
   @loginRequestToLoginResponse: (req, specNr) ->
 
@@ -101,23 +123,23 @@ class Processor
     h = msg.header
 
     if h.length isnt Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH
-      console.debug "Non valid message length: #{ h.length }"
+      console.warn "Non valid message length: #{ h.length }"
       return false
 
     if h.nr isnt Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR
-      console.debug "Non valid message number: #{ h.nr }"
+      console.warn "Non valid message number: #{ h.nr }"
       return false
 
     if h.protocolId isnt Properties.DEFAULT_PROTOCOL_ID
-      console.debug "Non valid protocol id: #{ h.protocolId }"
+      console.warn "Non valid protocol id: #{ h.protocolId }"
       return false
 
     if msg.specificationNr isnt specNr
-      console.error "Non valid specification number: #{ msg.specificationNr }"
+      console.warn "Non valid specification number: #{ msg.specificationNr }"
       return false
 
     if Properties.DEFAULT_LOCATION_ID_MAX < msg.locationId < Properties.DEFAULT_LOCATION_ID_MIN
-      console.debug "location id: #{ msg.locationId }"
+      console.warn "location id: #{ msg.locationId }"
       return false
 
     true
@@ -130,7 +152,10 @@ class Processor
     msg.data.writeUInt32BE Processor.getErrorByteFromLoginResponse(res), 4
     msg
 
-  @isLoginRequest: (msg) -> (msg.header.length is 52 and msg.header.nr is 1)
+  @isLoginMessage: (msg) ->
+    msg.header.length is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH  and
+    msg.header.nr     is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR      and
+    msg.data.length   is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH - 12
 
   @binToBasicMessage: (msg) ->
     throw new Error "byte array must not be null" unless msg?
@@ -148,10 +173,12 @@ class Processor
     Processor.basicMessageToBin msg
 
   @basicMessageToBin: (msg) ->
+    len = 12 + (msg.data?.length or 0)
+    msg.header.length ?= len
     header = Processor.basicHeaderToBin msg.header
-    bin = new Buffer header.length + msg.data.length
+    bin = new Buffer len
     header.copy bin
-    msg.data.copy bin, header.length
+    msg.data.copy bin, header.length if msg.data?
     bin
 
   @getErrorByteFromLoginResponse: (res) ->
