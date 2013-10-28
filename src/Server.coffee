@@ -14,7 +14,7 @@ Properties      = constants.Properties
 
 class Client extends events.EventEmitter
 
-  constructor: (@socket, @id) ->
+  constructor: (@socket, @id) -> @messageBuffer = new Buffer 0
 
   send: (msg) ->
     @socket.write Processor.messageToBin msg if @isConnected
@@ -55,11 +55,21 @@ class Server extends events.EventEmitter
   onSocket: (socket) =>
     client = new Client socket
     socket.on "data", (data) =>
-      bmsg = Processor.binToBasicMessage data
-      if client.isConnected
-        client.emit "message", Processor.basicMessageToAdvancedMessage bmsg
-      else
-        @onLogin bmsg, client if Processor.isLoginMessage bmsg
+      client.messageBuffer = Buffer.concat [client.messageBuffer, new Buffer(data,'binary')]
+      messages = Processor.checkMessageBuffer client
+      if messages instanceof Error
+        console.error messages.message
+        # close the connection to protect the server
+        client.socket.end()
+      if messages?.length > 0
+        @processMessage client, m for m in messages
+
+  processMessage: (client, bin) ->
+    bmsg = Processor.binToBasicMessage bin
+    if client.isConnected
+      client.emit "message", Processor.basicMessageToAdvancedMessage bmsg
+    else
+      @onLogin bmsg, client if Processor.isLoginMessage bmsg
 
   onLogin: (msg, client) ->
     req = Processor.basicMessageToLoginRequest msg

@@ -182,3 +182,53 @@ describe "Processor", ->
 
     it "is a function", ->
       (expect typeof @p.getErrorByteFromLoginResponse).toEqual "function"
+
+  describe "checkMessageBuffer method", ->
+
+    before ->
+      @fn = @p.checkMessageBuffer
+      @c  = {messageBuffer: null}
+
+    it "returns an array", ->
+      (expect @fn()).toEqual []
+      (expect @fn {}).toEqual []
+
+    it "recognizes a message", ->
+      @c.messageBuffer = new Buffer 14
+      @c.messageBuffer.writeUInt32BE 2,    0
+      @c.messageBuffer.writeUInt32BE 3,    4
+      @c.messageBuffer.writeUInt32BE 0x7f, 8
+      @c.messageBuffer[12] = 0xa
+      @c.messageBuffer[13] = 0xb
+      msgs = @fn @c
+      (expect msgs.length).toEqual 1
+      (expect msgs[0].readUInt32BE 0).toEqual 2
+      (expect msgs[0].length).toEqual 14
+      (expect msgs[0][12]).toEqual 0xa
+
+    it "recognizes multiple messages", ->
+
+      @c.messageBuffer = new Buffer 14 + 33
+
+      # first message
+      @c.messageBuffer.writeUInt32BE 2,    0
+      @c.messageBuffer.writeUInt32BE 3,    4
+      @c.messageBuffer.writeUInt32BE 0x7f, 8
+
+      # second message
+      @c.messageBuffer.writeUInt32BE 21,   14
+      @c.messageBuffer.writeUInt32BE 5,    28
+      @c.messageBuffer.writeUInt32BE 0x7f, 22
+
+      msgs = @fn @c
+      (expect msgs.length).toEqual 2
+
+    it "returns an error if the protocol id is not valid", ->
+      @c.messageBuffer = new Buffer 14
+      @c.messageBuffer.writeUInt32BE 2,    0
+      @c.messageBuffer.writeUInt32BE 3,    4
+      @c.messageBuffer.writeUInt32BE 0x33, 8
+      @c.messageBuffer[12] = 0xa
+      @c.messageBuffer[13] = 0xb
+      msgs = @fn @c
+      (expect msgs instanceof Error).toEqual true

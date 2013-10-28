@@ -191,11 +191,12 @@ class Processor
     throw new Error "byte array must not be null" unless bin?
     throw new Error "message length is too short" unless bin.length >= 12
 
-    new BasicMessage(new BasicHeader(
-        length:     bin.readUInt32BE(0)
-        nr:         bin.readUInt32BE(4)
-        protocolId: bin.readUInt32BE(8)),
-        bin.slice 12)
+    new BasicMessage new BasicHeader(Processor.getHeader bin), bin[12...]
+
+  @getHeader: (bin) ->
+    length:     bin.readUInt32BE 0
+    nr:         bin.readUInt32BE 4
+    protocolId: bin.readUInt32BE 8
 
   @messageToBin: (msg) ->
     if msg.advancedHeader?
@@ -220,5 +221,21 @@ class Processor
       for err in res.errors
         byte = bits.set byte, err
       byte
+
+  @checkMessageBuffer: (client) =>
+    return [] unless client?.messageBuffer?
+    if (l = client.messageBuffer.length) >= 12
+      h = Processor.getHeader client.messageBuffer
+      if h.protocolId isnt Properties.DEFAULT_PROTOCOL_ID
+        return new Error "Invalid protocol ID"
+      else
+        bufferLen = client.messageBuffer.length
+        msgLen    = h.length + 12
+        if bufferLen >= msgLen
+          msgBuff = new Buffer msgLen
+          client.messageBuffer.copy msgBuff, 0, 0, msgLen-1
+          client.messageBuffer = client.messageBuffer[msgLen...]
+          return [msgBuff, Processor.checkMessageBuffer(client)...]
+    []
 
 module.exports = Processor

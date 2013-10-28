@@ -35,18 +35,30 @@ class Client extends events.EventEmitter
     @specificationNr  ?= Properties.DEFAULT_SPECIFICATION_NR
     @loginFunctionId  ?= Properties.DEFAULT_LOGIN_FUNCTION_ID
 
+    @messageBuffer    = new Buffer 0
+
   connect: (cb)->
     @socket = net.connect { @port, @host }, =>
       @isConnected = true
       console.log "client #{@id} is now connected"
       cb?()
 
-    @socket.on "data", (binMsg) =>
-      msg = Processor.binToBasicMessage binMsg
-      if @isLoggedIn
-        @emit "message", Processor.basicMessageToAdvancedMessage msg
-      else
-        @onLogin msg if Processor.isLoginMessage msg
+    @socket.on "data", (data) =>
+      @messageBuffer = Buffer.concat [@messageBuffer, new Buffer(data,'binary')]
+      messages = Processor.checkMessageBuffer @
+      if messages instanceof Error
+        console.error messages.message
+        # close the connection to protect the client
+        @socket.end()
+      if messages?.length > 0
+        @processMessage m for m in messages
+
+  processMessage: (bin) ->
+    msg = Processor.binToBasicMessage binMsg
+    if @isLoggedIn
+      @emit "message", Processor.basicMessageToAdvancedMessage msg
+    else
+      @onLogin msg if Processor.isLoginMessage msg
 
   onLogin: (msg) ->
     res = Processor.basicMessageToLoginResponse msg
