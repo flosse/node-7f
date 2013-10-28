@@ -12,13 +12,22 @@
 npm install 7f
 ```
 
+### Server
+
 ```coffeescript
 lib7f  = require "7f"
 server = new lib7f.Server
 server.on "client", (client) ->
   client.on "message", (msg) ->
     console.log msg
-    msg = new lib7f.Message
+    header = {nr: 1}
+    advancedHeader =
+      logicalNr:  1245
+      command:    lib7f.constants.Command.TO
+      type:       lib7f.constants.DataType.BYTEARRAY
+      count:      3
+    data = new Buffer 7
+    msg = new lib7f.Message header, advancedHeader, data
     client.send msg
 server.connect()
 ```
@@ -32,6 +41,32 @@ server = new lib7f.Server
   port: 5010
   specificationNr: 8
   loginFunctionId: 5
+```
+
+### Client
+```coffeescript
+
+lib7f  = require "7f"
+
+client = new lib7f.Client 7,
+  host: "192.168.0.100"
+  port: 5010
+  specificationNr: 3
+  loginFunctionId: 9
+
+client.on "message", (msg) ->
+  console.log msg
+  header = {nr: 4}
+  advancedHeader =
+    logicalNr:  54
+    command:    lib7f.constants.Command.FETCH
+    type:       lib7f.constants.DataType.WORD
+    count:      9
+  data = new Buffer 33
+  msg = new lib7f.Message header, advancedHeader, data
+  client.send msg
+
+client.connect()
 ```
 
 ## License
