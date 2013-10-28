@@ -14,10 +14,7 @@ class AdvancedHeader
       @command
       @type
       @count
-      @timestamp
     } = opt
-
-    @timestamp ?= new Date().getTime()
 
 class BasicMessage
 

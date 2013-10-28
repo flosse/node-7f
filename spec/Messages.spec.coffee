@@ -23,12 +23,11 @@ describe "Messages", ->
       (expect (new @m.BasicHeader({protocolId:5})).protocolId).toEqual 5
 
   describe "AdvancedHeader", ->
-    it "has fife properties", ->
+    it "has four properties", ->
       (expect (new @m.AdvancedHeader({logicalNr:1})).logicalNr).toEqual 1
       (expect (new @m.AdvancedHeader({command:2})).command).toEqual 2
       (expect (new @m.AdvancedHeader({type:3})).type).toEqual 3
       (expect (new @m.AdvancedHeader({count:4})).count).toEqual 4
-      (expect (new @m.AdvancedHeader({timestamp:5})).timestamp).toEqual 5
 
   describe "BasicMessage", ->
     it "has two properties", ->
