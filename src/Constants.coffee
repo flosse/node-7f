@@ -3,16 +3,15 @@ Copyright (c) 2009 - 2013 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 Properties =
-  DEFAULT_PROTOCOL_ID                   : 0x7f
-  DEFAULT_LOGIN_RESPONSE_MESSAGE_NR     : 1
-  DEFAULT_LOGIN_RESPONSE_MESSAGE_LENGTH : 52
-  DEFAULT_LOGIN_REQUEST_MESSAGE_NR      : 1
-  DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH  : 52
-  DEFAULT_LOCATION_ID_MIN               : 0
-  DEFAULT_LOCATION_ID_MAX               : 65535 # 2^16 - 1 = 65535
-  DEFAULT_SPECIFICATION_NR_MIN          : 0
-  DEFAULT_SPECIFICATION_NR              : 1
-  DEFAULT_LOGIN_FUNCTION_ID             : 1
+  DEFAULT_PROTOCOL_ID           : 0x7f
+  DEFAULT_LOGIN_MESSAGE_NR      : 1
+  DEFAULT_LOGIN_MESSAGE_LENGTH  : 52
+  DEFAULT_LOGIN_MESSAGE_NR      : 1
+  DEFAULT_LOCATION_ID_MIN       : 0
+  DEFAULT_LOCATION_ID_MAX       : 65535 # 2^16 - 1 = 65535
+  DEFAULT_SPECIFICATION_NR_MIN  : 0
+  DEFAULT_SPECIFICATION_NR      : 1
+  DEFAULT_LOGIN_FUNCTION_ID     : 1
 
   # For the logical message number 32 bit are reserved by the 7F protocol,
   # but here for practical reasons it is limited to the positive

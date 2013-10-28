@@ -44,7 +44,7 @@ class Processor
 
   @advancedMessageToBasicMessage: (msg) ->
     bmsg = new BasicMessage msg.header
-    bmsg.data = new Buffer(msg.data.length + 10)
+    bmsg.data = new Buffer((msg.data?.length or 0) + 10)
     h = msg.advancedHeader
     bmsg.data.writeUInt32LE h.logicalNr, 0
     bmsg.data.writeUInt8 h.command, 4
@@ -59,6 +59,11 @@ class Processor
       functionId:      msg.data.readUInt32BE 4
       locationId:      msg.data.readUInt32BE 8
 
+  @basicMessageToLoginResponse: (msg) ->
+    new LoginResponse msg.header,
+      specificationNr: msg.data.readUInt32BE 0
+      errors:          Processor.getErrorsFromLoginResponse msg
+
   @loginRequestToBasicMessage: (req) ->
 
     { specificationNr
@@ -69,15 +74,16 @@ class Processor
     specificationNr ?= Properties.DEFAULT_SPECIFICATION_NR
     functionId      ?= Properties.DEFAULT_LOGIN_FUNCTION_ID
 
-    len = Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH
-    data = new Buffer len - 12
+    len = Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
+    data = new Buffer len
+    data.fill 0
     data.writeUInt32BE specificationNr, 0
     data.writeUInt32BE functionId,      4
     data.writeUInt32BE locationId,      8
-    h = req.header ?= {}
-    h.length       =  len
-    h.nr          ?=  Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR
-    h.protocolId  ?=  Properties.DEFAULT_PROTOCOL_ID
+    h = req.header  ?= {}
+    h.length         = len
+    h.nr            ?= Properties.DEFAULT_LOGIN_MESSAGE_NR
+    h.protocolId    ?= Properties.DEFAULT_PROTOCOL_ID
 
     new BasicMessage h, data
 
@@ -86,13 +92,17 @@ class Processor
     throw new Error "login request must not be null" unless req?
 
     header = new BasicHeader
-      length           : Properties.DEFAULT_LOGIN_RESPONSE_MESSAGE_LENGTH
-      nr               : Properties.DEFAULT_LOGIN_RESPONSE_MESSAGE_NR
+      length           : Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
+      nr               : Properties.DEFAULT_LOGIN_MESSAGE_NR
       protocolId       : Properties.DEFAULT_PROTOCOL_ID
 
     new LoginResponse header,
       errors           : Processor.getErrorsFromLoginRequest req, specNr
       specificationNr  : specNr
+
+  @getErrorsFromLoginResponse: (bmsg) ->
+    err = bmsg.data.readUInt32BE 4
+    (bit for name, bit of LoginError when bits.test err, bit)
 
   @getErrorsFromLoginRequest: (req, specNr) ->
 
@@ -147,7 +157,8 @@ class Processor
   @loginResponseToBasicMessage: (res) ->
 
     msg = new BasicMessage res.header
-    msg.data = new Buffer 52 # 12 + 40
+    msg.data = new Buffer 52
+    msg.data.fill 0
     msg.data.writeUInt32BE res.specificationNr, 0
     msg.data.writeUInt32BE Processor.getErrorByteFromLoginResponse(res), 4
     msg
