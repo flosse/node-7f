@@ -20,16 +20,19 @@ server.on "client", (client) ->
     console.log msg
     msg = new lib7f.Message
     client.send msg
+server.connect()
 ```
 
 You can also specify the port, the server address to which the server should be
 bound to, the servers specification number and it's login function ID:
 
-    server = new lib7f.Server
-      host: "192.168.10.30"
-      port: 5010
-      specificationNr: 8
-      loginFunctionId: 5
+```coffeescript
+server = new lib7f.Server
+  host: "192.168.10.30"
+  port: 5010
+  specificationNr: 8
+  loginFunctionId: 5
+```
 
 ## License
 

@@ -34,15 +34,23 @@ class Server extends events.EventEmitter
     console.info "Starting 7F server with SpecNr: #{@specificationNr} and LoginId: #{@loginFunctionId}"
 
     @clients = {}
-    server = net.createServer @onSocket
-    server.on "error", (err) ->
+    @_socket = net.createServer @onSocket
+    @_socket.on "error", (err) ->
       if err.code is 'EADDRNOTAVAIL'
-        console.error "Address not available"
+        console.error "Host address is not available"
       else console.error err
+
+  connect: (cb)->
     if @host?
-      server.listen @port, @host, => console.info "server bound to #{@host}:#{@port}"
+      @_socket.listen @port, @host, (err) =>
+        if err then console.error err
+        else console.info "server bound to #{@host}:#{@port}"
+        cb? err
     else
-      server.listen @port, => console.info "7F server is listening on port #{@port}"
+      @_socket.listen @port, (err) =>
+        if err then console.error err
+        else console.info "7F server is listening on port #{@port}"
+        cb? err
 
   onSocket: (socket) =>
     client = new Client socket
