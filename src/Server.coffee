@@ -23,9 +23,13 @@ class Client extends events.EventEmitter
 
 class Server extends events.EventEmitter
 
-  constructor: (@host, @port=5010
-  ,@specificationNr = Properties.DEFAULT_SPECIFICATION_NR
-  ,@loginFunctionId = Properties.DEFAULT_LOGIN_FUNCTION_ID) ->
+  constructor: (opt={}) ->
+
+    { @port, @host, @specificationNr, @loginFunctionId } = opt
+
+    @port             ?= 5010
+    @specificationNr  ?= Properties.DEFAULT_SPECIFICATION_NR
+    @loginFunctionId  ?= Properties.DEFAULT_LOGIN_FUNCTION_ID
 
     console.info "Starting 7F server with SpecNr: #{@specificationNr} and LoginId: #{@loginFunctionId}"
 

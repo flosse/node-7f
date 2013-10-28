@@ -22,15 +22,14 @@ server.on "client", (client) ->
     client.send msg
 ```
 
-You can also specify port and the address to which the server should be
-bound to:
+You can also specify the port, the server address to which the server should be
+bound to, the servers specification number and it's login function ID:
 
-    server = new lib7f.Server "192.168.10.30", 5010
-
-If you'd like to specify the servers specification number and it's login
-function ID just append it:
-
-    server = new lib7f.Server "192.168.10.30", 5010, 8, 5
+    server = new lib7f.Server
+      host: "192.168.10.30"
+      port: 5010
+      specificationNr: 8
+      loginFunctionId: 5
 
 ## License
 
