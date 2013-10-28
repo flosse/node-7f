@@ -21,12 +21,12 @@ class AdvancedHeader
 
 class BasicMessage
 
-  constructor: (@header, @data = new Buffer 0) ->
+  constructor: (@header, @data) ->
 
 class AdvancedMessage extends BasicMessage
 
-  constructor: (@header, @advancedHeader, data) ->
-    super @header, data
+  constructor: (header, @advancedHeader, data) ->
+    super header, data
 
 class LoginRequest extends BasicMessage
 

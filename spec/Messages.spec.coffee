@@ -33,14 +33,14 @@ describe "Messages", ->
   describe "BasicMessage", ->
     it "has two properties", ->
       (expect (new @m.BasicMessage("foo")).header).toEqual "foo"
-      (expect (new @m.BasicMessage).data instanceof Buffer).toEqual true
+      (expect (new @m.BasicMessage "x", "y").data ).toEqual "y"
       (expect (new @m.BasicMessage("bar", "baz")).data).toEqual "baz"
 
   describe "AdvancedMessage", ->
     it "has three properties", ->
-      m = new @m.AdvancedMessage "foo", "bar"
+      m = new @m.AdvancedMessage "foo", "bar", "baz"
       (expect m.header).toEqual "foo"
-      (expect m.data instanceof Buffer).toEqual true
+      (expect m.data?).toEqual true
       (expect m.advancedHeader).toEqual "bar"
 
   describe "LoginRequest", ->

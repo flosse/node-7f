@@ -127,32 +127,35 @@ class Processor
 
     err
 
-  @isValidLoginRequest: (msg, specNr) ->
+  @isValidLoginMessage: (msg, specNr, protocolId) ->
 
-    return false unless msg?
-    h = msg.header
-
-    if h.length isnt Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH
-      console.warn "Non valid message length: #{ h.length }"
+    unless Processor.isLoginMessage msg
       return false
 
-    if h.nr isnt Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR
-      console.warn "Non valid message number: #{ h.nr }"
-      return false
-
-    if h.protocolId isnt Properties.DEFAULT_PROTOCOL_ID
-      console.warn "Non valid protocol id: #{ h.protocolId }"
-      return false
-
-    if msg.specificationNr isnt specNr
+    unless msg.specificationNr is specNr
       console.warn "Non valid specification number: #{ msg.specificationNr }"
       return false
 
-    if Properties.DEFAULT_LOCATION_ID_MAX < msg.locationId < Properties.DEFAULT_LOCATION_ID_MIN
-      console.warn "location id: #{ msg.locationId }"
+    protocolId ?= Properties.DEFAULT_PROTOCOL_ID
+
+    unless msg.header.protocolId is protocolId
+      console.warn "Non valid protocol id: #{ msg.header.protocolId }"
       return false
 
     true
+
+  @isValidLoginRequest: (req, specNr, protocolId) ->
+
+    unless Processor.isValidLoginMessage req, specNr, protocolId
+      return false
+
+    if Properties.DEFAULT_LOCATION_ID_MAX < req.locationId < Properties.DEFAULT_LOCATION_ID_MIN
+      console.warn "location id out of range: #{ req.locationId }"
+      return false
+
+    true
+
+  @isValidLoginResponse: Processor.isValidLoginMessage
 
   @loginResponseToBasicMessage: (res) ->
 
@@ -163,33 +166,51 @@ class Processor
     msg.data.writeUInt32BE Processor.getErrorByteFromLoginResponse(res), 4
     msg
 
-  @isLoginMessage: (msg) ->
-    msg.header.length is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH  and
-    msg.header.nr     is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_NR      and
-    msg.data.length   is Properties.DEFAULT_LOGIN_REQUEST_MESSAGE_LENGTH - 12
+  @isLoginMessage: (bmsg) ->
+    return false unless bmsg?
+    h = bmsg.header
 
-  @binToBasicMessage: (msg) ->
-    throw new Error "byte array must not be null" unless msg?
-    throw new Error "message length is too short" unless msg.length >= 12
+    unless h.length is Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
+      console.warn "Non valid message length: #{ h.length }"
+      return false
+
+    unless h.nr is Properties.DEFAULT_LOGIN_MESSAGE_NR
+      console.warn "Non valid message number: #{ h.nr }"
+      return false
+
+    if bmsg.data? and bmsg.data.length isnt Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
+      console.warn """
+        Non valid login message: invalid data length:
+          #{bmsg.data.length} instead of #{Properties.DEFAULT_LOGIN_MESSAGE_LENFTH} Bytes"
+        """
+      return false
+
+    true
+
+  @binToBasicMessage: (bin) ->
+    throw new Error "byte array must not be null" unless bin?
+    throw new Error "message length is too short" unless bin.length >= 12
 
     new BasicMessage(new BasicHeader(
-        length: msg.readUInt32BE(0)
-        nr: msg.readUInt32BE(4)
-        protocolId: msg.readUInt32BE(8)),
-      msg.slice 12)
+        length:     bin.readUInt32BE(0)
+        nr:         bin.readUInt32BE(4)
+        protocolId: bin.readUInt32BE(8)),
+        bin.slice 12)
 
   @messageToBin: (msg) ->
     if msg.advancedHeader?
       msg = Processor.advancedMessageToBasicMessage msg
     Processor.basicMessageToBin msg
 
-  @basicMessageToBin: (msg) ->
-    len = 12 + (msg.data?.length or 0)
-    msg.header.length ?= len
-    header = Processor.basicHeaderToBin msg.header
+  @basicMessageToBin: (bmsg) ->
+    len = 12 + (bmsg.data?.length or 0)
+    bmsg.header ?={}
+    bmsg.header.length     ?= len
+    bmsg.header.protocolId ?= Properties.DEFAULT_PROTOCOL_ID
+    header = Processor.basicHeaderToBin bmsg.header
     bin = new Buffer len
     header.copy bin
-    msg.data.copy bin, header.length if msg.data?
+    bmsg.data.copy bin, header.length if bmsg.data?
     bin
 
   @getErrorByteFromLoginResponse: (res) ->

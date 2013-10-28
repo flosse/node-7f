@@ -49,6 +49,33 @@ describe "Processor", ->
     it "is a function", ->
       (expect typeof @p.basicMessageToLoginRequest).toEqual "function"
 
+    it "converts it", ->
+      d = new Buffer 52
+      d.writeUInt32BE 67, 8
+      bm = header: { length: 52 }, data: d
+      lr = @p.basicMessageToLoginRequest bm
+      (expect lr.locationId).toEqual 67
+
+  describe "basicMessageToLoginResponse", ->
+
+    it "is a function", ->
+      (expect typeof @p.basicMessageToLoginResponse).toEqual "function"
+
+    it "converts it", ->
+      d = new Buffer 52
+      d.writeUInt32BE 8, 0
+      d.writeUInt32BE 0, 4
+      bm = header: { length: 52 }, data: d
+      lr = @p.basicMessageToLoginResponse bm
+      (expect lr.specificationNr).toEqual 8
+      (expect lr.errors).toEqual []
+
+      err = 0x3
+      d.writeUInt32BE err, 4
+      lr = @p.basicMessageToLoginResponse bm
+      bm = header: { length: 52 }, data: d
+      (expect lr.errors).toEqual [0, 1]
+
   describe "loginRequestToBasicMessage", ->
 
     it "is a function", ->
@@ -59,8 +86,10 @@ describe "Processor", ->
       (expect bm.header.length).toEqual 52
       (expect bm.header.nr).toEqual 1
       (expect bm.header.protocolId).toEqual 0x7f
-      (expect @p.isValidLoginRequest bm).toEqual true
-      (expect bm.data.length).toEqual 40
+      lreq = @p.basicMessageToLoginRequest bm
+      (expect lreq.specificationNr).toEqual 1
+      (expect @p.isValidLoginRequest lreq, 1).toEqual true
+      (expect bm.data.length).toEqual 52
       (expect bm.data.readUInt32BE 0).toEqual 1 # specificationNr
       (expect bm.data.readUInt32BE 4).toEqual 1 # functionId
       (expect bm.data.readUInt32BE 8).toEqual 5 # locationId
@@ -95,11 +124,11 @@ describe "Processor", ->
         header:
           length: 52
           nr: 1
-        data: new Buffer 40
+        data: new Buffer 52
       (expect @p.isLoginMessage msg).toEqual true
       msg.data = new Buffer 33
       (expect @p.isLoginMessage msg).toEqual false
-      msg.data = new Buffer 40
+      msg.data = new Buffer 52
       msg.header.nr = 8
       (expect @p.isLoginMessage msg).toEqual false
 

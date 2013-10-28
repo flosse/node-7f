@@ -23,12 +23,11 @@ class Client extends events.EventEmitter
 
 class Server extends events.EventEmitter
 
-  constructor: (@host="127.0.0.1", @port=5010
+  constructor: (@host, @port=5010
   ,@specificationNr = Properties.DEFAULT_SPECIFICATION_NR
   ,@loginFunctionId = Properties.DEFAULT_LOGIN_FUNCTION_ID) ->
 
-    console.info "Starting 7F server: #{@host}:#{@port}"
-    console.info "SpecNr: #{@specificationNr}, LoginId: #{@loginFunctionId}"
+    console.info "Starting 7F server with SpecNr: #{@specificationNr} and LoginId: #{@loginFunctionId}"
 
     @clients = {}
     server = net.createServer @onSocket
@@ -36,16 +35,19 @@ class Server extends events.EventEmitter
       if err.code is 'EADDRNOTAVAIL'
         console.error "Address not available"
       else console.error err
-    server.listen @port, @host, -> console.info "server bound"
+    if @host?
+      server.listen @port, @host, => console.info "server bound to #{@host}:#{@port}"
+    else
+      server.listen @port, => console.info "7F server is listening on port #{@port}"
 
   onSocket: (socket) =>
     client = new Client socket
     socket.on "data", (data) =>
-      msg = Processor.binToBasicMessage data
+      bmsg = Processor.binToBasicMessage data
       if client.isConnected
-        client.emit "message", Processor.basicMessageToAdvancedMessage msg
+        client.emit "message", Processor.basicMessageToAdvancedMessage bmsg
       else
-        @onLogin msg, client if Processor.isLoginRequest msg
+        @onLogin bmsg, client if Processor.isLoginMessage bmsg
 
   onLogin: (msg, client) ->
     req = Processor.basicMessageToLoginRequest msg
@@ -55,6 +57,8 @@ class Server extends events.EventEmitter
       @addClient client
       @sendLoginResponse req, client.id
       @emit "client", client
+    else
+      @sendLoginResponse req, client.id, client.socket
 
   addClient: (client) ->
     if @clients[client.id]?
@@ -65,12 +69,12 @@ class Server extends events.EventEmitter
     @clients[client.id] = client
     console.info "new client was added"
 
-  sendLoginResponse: (req, id) ->
-    res = Processor.loginRequestToLoginResponse req, @specificationNr
+  sendLoginResponse: (req, id, socket) ->
+    res  = Processor.loginRequestToLoginResponse req, @specificationNr
     bmsg = Processor.loginResponseToBasicMessage res
-    @send bmsg, id
+    @send bmsg, id, socket
 
-  send: (msg, id) ->
-    @clients[id].socket.write Processor.messageToBin msg
+  send: (msg, id, socket= @clients[id]?.socket) ->
+    socket?.write Processor.messageToBin msg
 
 module.exports = Server
