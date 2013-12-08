@@ -2,3 +2,4 @@ spec/*
 Cakefile
 node_modules
 *.coffee
+*.swp

@@ -60,9 +60,16 @@ class Server extends events.EventEmitter
       if messages instanceof Error
         console.error messages.message
         # close the connection to protect the server
-        client.socket.end()
+        console.info "Resetting connection"
+        socket.destroy()
+        client.socket.destroy()
       if messages?.length > 0
         @processMessage client, m for m in messages
+
+    socket.on "error", (err) ->
+      console.error "An 7F client error occourred: ", err.message
+      console.info "Resetting connection"
+      socket.destroy()
 
   processMessage: (client, bin) ->
     bmsg = Processor.binToBasicMessage bin
@@ -89,7 +96,7 @@ class Server extends events.EventEmitter
       @clients[client.id].socket.destroy()
       delete @clients[client.id]
     @clients[client.id] = client
-    console.info "new client was added"
+    console.info "New 7F client with location id#{ client.id } is now available"
 
   sendLoginResponse: (req, id, socket) ->
     res  = Processor.loginRequestToLoginResponse req, @specificationNr
