@@ -49,7 +49,7 @@ class Processor
     bmsg.data.writeUInt32LE h.logicalNr, 0
     bmsg.data.writeUInt8 h.command, 4
     bmsg.data.writeUInt8 h.type, 5
-    bmsg.data.writeUInt32LE h.count, 6
+    bmsg.data.writeUInt32LE (h.count or 0), 6
     msg.data.copy bmsg.data, 10, 0
     bmsg
 
