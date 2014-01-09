@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2009 - 2013, Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 net         = require "net"
@@ -81,7 +81,7 @@ class Server extends events.EventEmitter
   onLogin: (msg, client) ->
     req = Processor.basicMessageToLoginRequest msg
     if Processor.isValidLoginRequest req, @specificationNr
-      client.id = req.locationId
+      client.id = req.locationId.toString()
       client.isConnected = true
       @addClient client
       @sendLoginResponse req, client.id
