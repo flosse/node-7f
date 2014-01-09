@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2009 - 2013, Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 bits            = require "bits"
@@ -206,7 +206,7 @@ class Processor
   @basicMessageToBin: (bmsg) ->
     len = 12 + (bmsg.data?.length or 0)
     bmsg.header ?={}
-    bmsg.header.length     ?= len
+    bmsg.header.length     ?= len - 12
     bmsg.header.protocolId ?= Properties.DEFAULT_PROTOCOL_ID
     header = Processor.basicHeaderToBin bmsg.header
     bin = new Buffer len
@@ -227,7 +227,7 @@ class Processor
     if (l = client.messageBuffer.length) >= 12
       h = Processor.getHeader client.messageBuffer
       if h.protocolId isnt Properties.DEFAULT_PROTOCOL_ID
-        return new Error "Invalid protocol ID"
+        return new Error "Invalid protocol ID: #{h.protocolId}"
       else
         bufferLen = client.messageBuffer.length
         msgLen    = h.length + 12

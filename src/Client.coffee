@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2009 - 2013, Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 net         = require "net"

@@ -167,7 +167,8 @@ describe "Processor", ->
       buff = @p.basicMessageToBin msg
       (expect typeof buff).toEqual "object"
       (expect buff.length).toEqual 16
-      (expect buff.readUInt32BE 0).toEqual 16
+      # CAUTION: the 'length' property defines the user data length!
+      (expect buff.readUInt32BE 0).toEqual 4
 
       msg =
         header:
@@ -176,7 +177,7 @@ describe "Processor", ->
       buff = @p.basicMessageToBin msg
       (expect typeof buff).toEqual "object"
       (expect buff.length).toEqual 12
-      (expect buff.readUInt32BE 0).toEqual 12
+      (expect buff.readUInt32BE 0).toEqual 0
 
   describe "getErrorByteFromLoginResponse", ->
 
