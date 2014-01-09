@@ -53,8 +53,10 @@ class Client extends events.EventEmitter
       if messages?.length > 0
         @processMessage m for m in messages
 
+    @socket.on "error", (err) => @emit "error", err
+
   processMessage: (bin) ->
-    msg = Processor.binToBasicMessage binMsg
+    msg = Processor.binToBasicMessage bin
     if @isLoggedIn
       @emit "message", Processor.basicMessageToAdvancedMessage msg
     else
