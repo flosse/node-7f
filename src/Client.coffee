@@ -37,10 +37,10 @@ class Client extends events.EventEmitter
 
     @messageBuffer    = new Buffer 0
 
-  connect: (cb)->
+  connect: (cb) ->
     @socket = net.connect { @port, @host }, =>
       @isConnected = true
-      console.log "client #{@id} is now connected"
+      @emit "connect"
       cb?()
 
     @socket.on "data", (data) =>
@@ -65,7 +65,6 @@ class Client extends events.EventEmitter
   onLogin: (msg) ->
     res = Processor.basicMessageToLoginResponse msg
     if Processor.isValidLoginResponse res, @specificationNr
-      console.log "client #{@id} is now logged in"
       @isLoggedIn = true
       @emit "login"
     else
@@ -73,9 +72,9 @@ class Client extends events.EventEmitter
       @emit "login-error", new Error errors.join(',')
 
     @socket.on "end", =>
-      console.log "client #{@id} is now disconnected"
       @isConnected = false
       @isLoggedIn  = false
+      @emit "disconnect"
 
   disconnect: -> @socket.end()
 

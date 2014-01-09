@@ -66,6 +66,19 @@ client.on "message", (msg) ->
   msg = new lib7f.Message header, advancedHeader, data
   client.send msg
 
+client.on "error", (err) ->
+  console.log "something went wrong"
+
+client.on "login", ->
+  console.log "client is now logged in"
+
+client.on "connect", ->
+  console.log "client is connected"
+  client.login()
+
+client.on "disconnect", ->
+  console.log "client is now disconnected"
+
 client.connect()
 ```
 
