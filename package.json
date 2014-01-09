@@ -1,6 +1,6 @@
 {
   "name": "7f",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "./lib/7f",
   "description": "7F protocol library for node.js",
   "author": "Markus Kohlhase <mail@markus-kolhase.de>",

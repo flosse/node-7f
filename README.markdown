@@ -29,7 +29,7 @@ server.on "client", (client) ->
     data = new Buffer 7
     msg = new lib7f.Message header, advancedHeader, data
     client.send msg
-server.connect()
+server.connect -> # the server is ready
 ```
 
 You can also specify the port, the server address to which the server should be
