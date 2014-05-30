@@ -1,6 +1,5 @@
-global.buster = require "buster"
-global.sinon  = require "sinon"
-buster.spec.expose()
+chai    = require "chai"
+expect  = chai.expect
 
 describe "Processor", ->
 
@@ -8,23 +7,23 @@ describe "Processor", ->
     @p = require "../src/Processor"
 
   it "is a class", ->
-    (expect typeof @p).toEqual "function"
+    (expect typeof @p).to.equal "function"
 
   describe "basicHeaderToBin", ->
 
     it "is a function", ->
-      (expect typeof @p.basicHeaderToBin).toEqual "function"
+      (expect typeof @p.basicHeaderToBin).to.equal "function"
 
     it "returns a buffer", ->
       h = { length:3, nr: 5, protocolId: 7 }
       buff = @p.basicHeaderToBin h
-      (expect typeof buff).toEqual "object"
-      (expect buff.length).toEqual 12
+      (expect typeof buff).to.equal "object"
+      (expect buff.length).to.equal 12
 
   describe "basicMessageToAdvancedMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.basicMessageToAdvancedMessage).toEqual "function"
+      (expect typeof @p.basicMessageToAdvancedMessage).to.equal "function"
 
     it "extracts three properties", ->
       d = new Buffer 10
@@ -34,32 +33,32 @@ describe "Processor", ->
       d.writeUInt32LE 99, 6
       basicMsg = header: {length: 4, nr:5, protocolId: 4}, data: d
       a = @p.basicMessageToAdvancedMessage basicMsg
-      (expect a.advancedHeader.logicalNr).toEqual 66
-      (expect a.advancedHeader.command).toEqual 33
-      (expect a.advancedHeader.type).toEqual 2
-      (expect a.advancedHeader.count).toEqual 99
+      (expect a.advancedHeader.logicalNr) .to.equal 66
+      (expect a.advancedHeader.command)   .to.equal 33
+      (expect a.advancedHeader.type)      .to.equal 2
+      (expect a.advancedHeader.count)     .to.equal 99
 
   describe "advancedMessageToBasicMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.advancedMessageToBasicMessage).toEqual "function"
+      (expect typeof @p.advancedMessageToBasicMessage).to.equal "function"
 
   describe "basicMessageToLoginRequest", ->
 
     it "is a function", ->
-      (expect typeof @p.basicMessageToLoginRequest).toEqual "function"
+      (expect typeof @p.basicMessageToLoginRequest).to.equal "function"
 
     it "converts it", ->
       d = new Buffer 52
       d.writeUInt32BE 67, 8
       bm = header: { length: 52 }, data: d
       lr = @p.basicMessageToLoginRequest bm
-      (expect lr.locationId).toEqual 67
+      (expect lr.locationId).to.equal 67
 
   describe "basicMessageToLoginResponse", ->
 
     it "is a function", ->
-      (expect typeof @p.basicMessageToLoginResponse).toEqual "function"
+      (expect typeof @p.basicMessageToLoginResponse).to.equal "function"
 
     it "converts it", ->
       d = new Buffer 52
@@ -67,57 +66,57 @@ describe "Processor", ->
       d.writeUInt32BE 0, 4
       bm = header: { length: 52 }, data: d
       lr = @p.basicMessageToLoginResponse bm
-      (expect lr.specificationNr).toEqual 8
-      (expect lr.errors).toEqual []
+      (expect lr.specificationNr).to.equal 8
+      (expect lr.errors).to.eql []
 
       err = 0x3
       d.writeUInt32BE err, 4
       lr = @p.basicMessageToLoginResponse bm
       bm = header: { length: 52 }, data: d
-      (expect lr.errors).toEqual [0, 1]
+      (expect lr.errors).to.eql [0, 1]
 
   describe "loginRequestToBasicMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.loginRequestToBasicMessage).toEqual "function"
+      (expect typeof @p.loginRequestToBasicMessage).to.equal "function"
 
     it "converts to a LoginRequest with default values if they are not specified", ->
       bm = @p.loginRequestToBasicMessage { locationId: 5 }
-      (expect bm.header.length).toEqual 52
-      (expect bm.header.nr).toEqual 1
-      (expect bm.header.protocolId).toEqual 0x7f
+      (expect bm.header.length).to.equal 52
+      (expect bm.header.nr).to.equal 1
+      (expect bm.header.protocolId).to.equal 0x7f
       lreq = @p.basicMessageToLoginRequest bm
-      (expect lreq.specificationNr).toEqual 1
-      (expect @p.isValidLoginRequest lreq, 1).toEqual true
-      (expect bm.data.length).toEqual 52
-      (expect bm.data.readUInt32BE 0).toEqual 1 # specificationNr
-      (expect bm.data.readUInt32BE 4).toEqual 1 # functionId
-      (expect bm.data.readUInt32BE 8).toEqual 5 # locationId
+      (expect lreq.specificationNr).to.equal 1
+      (expect @p.isValidLoginRequest lreq, 1).to.equal true
+      (expect bm.data.length).to.equal 52
+      (expect bm.data.readUInt32BE 0).to.equal 1 # specificationNr
+      (expect bm.data.readUInt32BE 4).to.equal 1 # functionId
+      (expect bm.data.readUInt32BE 8).to.equal 5 # locationId
 
   describe "loginRequestToLoginResponse", ->
 
     it "is a function", ->
-      (expect typeof @p.loginRequestToLoginResponse).toEqual "function"
+      (expect typeof @p.loginRequestToLoginResponse).to.equal "function"
 
   describe "getErrorsFromLoginRequest", ->
 
     it "is a function", ->
-      (expect typeof @p.getErrorsFromLoginRequest).toEqual "function"
+      (expect typeof @p.getErrorsFromLoginRequest).to.equal "function"
 
   describe "isValidLoginRequest", ->
 
     it "is a function", ->
-      (expect typeof @p.isValidLoginRequest).toEqual "function"
+      (expect typeof @p.isValidLoginRequest).to.equal "function"
 
   describe "loginResponseToBasicMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.loginResponseToBasicMessage).toEqual "function"
+      (expect typeof @p.loginResponseToBasicMessage).to.equal "function"
 
   describe "isLoginMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.isLoginMessage).toEqual "function"
+      (expect typeof @p.isLoginMessage).to.equal "function"
 
     it "tests the message", ->
       msg =
@@ -125,38 +124,38 @@ describe "Processor", ->
           length: 52
           nr: 1
         data: new Buffer 52
-      (expect @p.isLoginMessage msg).toEqual true
+      (expect @p.isLoginMessage msg).to.equal true
       msg.data = new Buffer 33
-      (expect @p.isLoginMessage msg).toEqual false
+      (expect @p.isLoginMessage msg).to.equal false
       msg.data = new Buffer 52
       msg.header.nr = 8
-      (expect @p.isLoginMessage msg).toEqual false
+      (expect @p.isLoginMessage msg).to.equal false
 
   describe "binToBasicMessage", ->
 
     it "is a function", ->
-      (expect typeof @p.binToBasicMessage).toEqual "function"
+      (expect typeof @p.binToBasicMessage).to.equal "function"
 
     it "takes a buffer with min. 12 bytes", ->
-      (expect => @p.binToBasicMessage()).toThrow()
-      (expect => @p.binToBasicMessage(new Buffer(3))).toThrow()
+      (expect => @p.binToBasicMessage()).to.throw()
+      (expect => @p.binToBasicMessage(new Buffer(3))).to.throw()
       d = new Buffer 13
       d.writeUInt32BE 44, 0
       d[12] = 5
       x = null
-      (expect => x = @p.binToBasicMessage d).not.toThrow()
-      (expect x.header.length).toEqual 44
-      (expect x.data[0]).toEqual 5
+      (expect => x = @p.binToBasicMessage d).not.to.throw()
+      (expect x.header.length).to.equal 44
+      (expect x.data[0]).to.equal 5
 
   describe "messageToBin", ->
 
     it "is a function", ->
-      (expect typeof @p.messageToBin).toEqual "function"
+      (expect typeof @p.messageToBin).to.equal "function"
 
   describe "basicMessageToBin", ->
 
     it "is a function", ->
-      (expect typeof @p.basicMessageToBin).toEqual "function"
+      (expect typeof @p.basicMessageToBin).to.equal "function"
 
     it "calculates the length if not specified", ->
       msg =
@@ -165,24 +164,24 @@ describe "Processor", ->
           protocolId: 0x8f
         data: new Buffer(4)
       buff = @p.basicMessageToBin msg
-      (expect typeof buff).toEqual "object"
-      (expect buff.length).toEqual 16
+      (expect typeof buff).to.equal "object"
+      (expect buff.length).to.equal 16
       # CAUTION: the 'length' property defines the user data length!
-      (expect buff.readUInt32BE 0).toEqual 4
+      (expect buff.readUInt32BE 0).to.equal 4
 
       msg =
         header:
           nr: 5
           protocolId: 0x8f
       buff = @p.basicMessageToBin msg
-      (expect typeof buff).toEqual "object"
-      (expect buff.length).toEqual 12
-      (expect buff.readUInt32BE 0).toEqual 0
+      (expect typeof buff).to.equal "object"
+      (expect buff.length).to.equal 12
+      (expect buff.readUInt32BE 0).to.equal 0
 
   describe "getErrorByteFromLoginResponse", ->
 
-    it "is a function", ->
-      (expect typeof @p.getErrorByteFromLoginResponse).toEqual "function"
+    xit "is a function", ->
+      (expect typeof @p.getErrorByteFromLoginResponse).to.equal "function"
 
   describe "checkMessageBuffer method", ->
 
@@ -191,8 +190,8 @@ describe "Processor", ->
       @c  = {messageBuffer: null}
 
     it "returns an array", ->
-      (expect @fn()).toEqual []
-      (expect @fn {}).toEqual []
+      (expect @fn())  .to.eql []
+      (expect @fn {}) .to.eql []
 
     it "recognizes a message", ->
       @c.messageBuffer = new Buffer 14
@@ -202,10 +201,10 @@ describe "Processor", ->
       @c.messageBuffer[12] = 0xa
       @c.messageBuffer[13] = 0xb
       msgs = @fn @c
-      (expect msgs.length).toEqual 1
-      (expect msgs[0].readUInt32BE 0).toEqual 2
-      (expect msgs[0].length).toEqual 14
-      (expect msgs[0][12]).toEqual 0xa
+      (expect msgs.length).to.equal 1
+      (expect msgs[0].readUInt32BE 0).to.equal 2
+      (expect msgs[0].length).to.equal 14
+      (expect msgs[0][12]).to.equal 0xa
 
     it "recognizes multiple messages", ->
 
@@ -222,7 +221,7 @@ describe "Processor", ->
       @c.messageBuffer.writeUInt32BE 0x7f, 22
 
       msgs = @fn @c
-      (expect msgs.length).toEqual 2
+      (expect msgs.length).to.equal 2
 
     it "returns an error if the protocol id is not valid", ->
       @c.messageBuffer = new Buffer 14
@@ -232,4 +231,4 @@ describe "Processor", ->
       @c.messageBuffer[12] = 0xa
       @c.messageBuffer[13] = 0xb
       msgs = @fn @c
-      (expect msgs instanceof Error).toEqual true
+      (expect msgs instanceof Error).to.equal true
