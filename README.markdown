@@ -29,6 +29,10 @@ server.on "client", (client) ->
     data = new Buffer 7
     msg = new lib7f.Message header, advancedHeader, data
     client.send msg
+
+server.on "reconnect", (client) ->
+  console.log "client #{client.id} has reconnected"
+
 server.connect -> # the server is ready
 ```
 

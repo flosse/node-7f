@@ -91,12 +91,12 @@ class Server extends events.EventEmitter
 
   addClient: (client) ->
     if @clients[client.id]?
-      console.info "Client with location id #{ client.id } has reconnected."
+      reconnected = yes
       @clients[client.id].isConnected = false
       @clients[client.id].socket.destroy()
       delete @clients[client.id]
     @clients[client.id] = client
-    console.info "New 7F client with location id#{ client.id } is now available"
+    @emit "reconnect", client if reconnected
 
   sendLoginResponse: (req, id, socket) ->
     res  = Processor.loginRequestToLoginResponse req, @specificationNr
