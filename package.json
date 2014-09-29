@@ -25,7 +25,7 @@
   },
   "license": "GPLv3",
   "scripts": {
-    "build": "./node_modules/.bin/coffee -o lib/ -c src/*.coffee",
-    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register spec/*.spec.coffee"
+    "prepublish": "coffee -o lib/ -c src/*.coffee",
+    "test": "mocha --compilers coffee:coffee-script/register spec/*.spec.coffee"
   }
 }
