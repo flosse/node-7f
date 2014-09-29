@@ -4,7 +4,6 @@ Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
 
 net         = require "net"
 events      = require "events"
-
 constants   = require "./Constants"
 
 { BasicHeader

@@ -1,6 +1,6 @@
 {
   "name": "7f",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "main": "./lib/7f",
   "description": "7F protocol library for node.js",
   "author": "Markus Kohlhase <mail@markus-kolhase.de>",
@@ -8,11 +8,9 @@
     "bits": "~0.1.1"
   },
   "devDependencies": {
-    "async": "~0.9.0",
     "chai": "^1.9.1",
-    "coffee-script": "~1.7.1",
-    "mocha": "^1.20.0",
-    "usage": "~0.3.10"
+    "coffee-script": "~1.8.0",
+    "mocha": "^1.21.4"
   },
   "maintainers": [
     {
@@ -25,11 +23,7 @@
     "type": "git",
     "url": "https://github.com/flosse/node-7f"
   },
-  "licenses": [
-    {
-      "type": "GPLv3"
-    }
-  ],
+  "license": "GPLv3",
   "scripts": {
     "build": "./node_modules/.bin/coffee -o lib/ -c src/*.coffee",
     "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register spec/*.spec.coffee"
