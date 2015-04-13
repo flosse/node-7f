@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2015, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 net         = require "net"
@@ -31,7 +31,8 @@ class Server extends events.EventEmitter
     @specificationNr  ?= Properties.DEFAULT_SPECIFICATION_NR
     @loginFunctionId  ?= Properties.DEFAULT_LOGIN_FUNCTION_ID
 
-    console.info "Starting 7F server with SpecNr: #{@specificationNr} and LoginId: #{@loginFunctionId}"
+    console.info "Starting 7F server with SpecNr: #{@specificationNr} \
+                  and LoginId: #{@loginFunctionId}"
 
     @clients = {}
     @_socket = net.createServer @onSocket
@@ -55,7 +56,8 @@ class Server extends events.EventEmitter
   onSocket: (socket) =>
     client = new Client socket
     socket.on "data", (data) =>
-      client.messageBuffer = Buffer.concat [client.messageBuffer, new Buffer(data,'binary')]
+      client.messageBuffer =
+        Buffer.concat [client.messageBuffer, new Buffer data,'binary' ]
       messages = Processor.checkMessageBuffer client
       if messages instanceof Error
         console.error messages.message

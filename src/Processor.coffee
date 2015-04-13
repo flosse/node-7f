@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2009 - 2014, Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2015, Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 bits            = require "bits"
@@ -118,9 +118,11 @@ class Processor
       # DUE TO THIS, IT WILL BE IGNORED !!
       # err.add( LoginError.INVALID_FUNCION_ID );
 
-    if req.locationId > Properties.DEFAULT_LOCATION_ID_MAX or
-       req.locationId < Properties.DEFAULT_LOCATION_ID_MIN
-        err.push LoginError.INVALID_LOCATION_ID
+    max = Properties.DEFAULT_LOCATION_ID_MAX
+    min = Properties.DEFAULT_LOCATION_ID_MIN
+
+    if max < req.locationId < min
+      err.push LoginError.INVALID_LOCATION_ID
 
     if req.header.protocolId isnt Properties.DEFAULT_PROTOCOL_ID
       err.push LoginError.INVALID_PROTOCOL_ID
@@ -149,7 +151,10 @@ class Processor
     unless Processor.isValidLoginMessage req, specNr, protocolId
       return false
 
-    if Properties.DEFAULT_LOCATION_ID_MAX < req.locationId < Properties.DEFAULT_LOCATION_ID_MIN
+    max = Properties.DEFAULT_LOCATION_ID_MAX
+    min = Properties.DEFAULT_LOCATION_ID_MIN
+
+    if max < req.locationId < min
       console.warn "location id out of range: #{ req.locationId }"
       return false
 
@@ -178,11 +183,10 @@ class Processor
       console.warn "Non valid message number: #{ h.nr }"
       return false
 
-    if bmsg.data? and bmsg.data.length isnt Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
-      console.warn """
-        Non valid login message: invalid data length:
-          #{bmsg.data.length} instead of #{Properties.DEFAULT_LOGIN_MESSAGE_LENFTH} Bytes"
-        """
+    l = Properties.DEFAULT_LOGIN_MESSAGE_LENGTH
+    if bmsg.data? and bmsg.data.length isnt l
+      console.warn "Non valid login message: invalid data length: \
+                    #{bmsg.data.length} instead of #{l} Bytes"
       return false
 
     true
@@ -222,7 +226,7 @@ class Processor
         byte = bits.set byte, err
       byte
 
-  @checkMessageBuffer: (client) =>
+  @checkMessageBuffer: (client) ->
     return [] unless client?.messageBuffer?
     if (l = client.messageBuffer.length) >= 12
       h = Processor.getHeader client.messageBuffer

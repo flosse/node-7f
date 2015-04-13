@@ -1,12 +1,11 @@
 ###
-Copyright (c) 2009 - 2013 Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2009 - 2015 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 Properties =
   DEFAULT_PROTOCOL_ID           : 0x7f
   DEFAULT_LOGIN_MESSAGE_NR      : 1
   DEFAULT_LOGIN_MESSAGE_LENGTH  : 52
-  DEFAULT_LOGIN_MESSAGE_NR      : 1
   DEFAULT_LOCATION_ID_MIN       : 0
   DEFAULT_LOCATION_ID_MAX       : 65535 # 2^16 - 1 = 65535
   DEFAULT_SPECIFICATION_NR_MIN  : 0
@@ -40,10 +39,10 @@ DataType =
   LONGWORDARRAY : 6
 
 LoginError =
-	INVALID_PROTOCOL_ID           : 0 # bit Nr.
-	INVALID_SPECIFICATION_NUMBER  : 1
-	INVALID_FUNCION_ID            : 2
-	INVALID_LOCATION_ID           : 3
+  INVALID_PROTOCOL_ID           : 0 # bit Nr.
+  INVALID_SPECIFICATION_NUMBER  : 1
+  INVALID_FUNCION_ID            : 2
+  INVALID_LOCATION_ID           : 3
 
 module.exports =
   Properties : Properties
